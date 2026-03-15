@@ -19,12 +19,18 @@ Output schema per paper:
     "industry_domain": str,
     "abstract_summary": str,
     "key_findings": [str],
+    "methodology": str,
+    "limitations": [str],
+    "related_work": [str],
+    "notable_quotes": [str],
     "software_dev_relevance": {
         "summary": str,
         "specific_applications": [str],
+        "anti_patterns": [str],
         "relevance_score": int  # 1-10
     },
-    "tags": [str]
+    "tags": [str],
+    "full_text": str   # raw extracted text, stored for deep retrieval
   }
 
 Usage:
@@ -60,24 +66,42 @@ Return ONLY valid JSON with no preamble, explanation, or markdown backticks. The
   "authors": ["Author 1", "Author 2"],
   "year": 2024,
   "industry_domain": "e.g. healthcare, finance, manufacturing, logistics, education",
-  "abstract_summary": "2-3 sentence summary of what the paper is about and what it found",
+  "abstract_summary": "3-5 sentence summary of what the paper is about, its context, and what it found",
   "key_findings": [
-    "Finding 1",
+    "Finding 1 — be specific and detailed",
     "Finding 2",
-    "Finding 3"
+    "Finding 3",
+    "Finding 4",
+    "Finding 5"
+  ],
+  "methodology": "2-3 sentences describing how the research was conducted — methods, data sources, study design, tools used",
+  "limitations": [
+    "Limitation or caveat acknowledged by the paper",
+    "Another limitation"
+  ],
+  "related_work": [
+    "Key framework, theory, or prior work this paper builds on",
+    "Another related framework or paper"
+  ],
+  "notable_quotes": [
+    "A verbatim or near-verbatim quote from the paper that captures a key insight"
   ],
   "software_dev_relevance": {
-    "summary": "How the concepts, methods, or findings in this paper relate to software development practices",
+    "summary": "2-3 sentences on how the concepts, methods, or findings relate to software development practices",
     "specific_applications": [
-      "Specific way this could apply to software dev 1",
-      "Specific way this could apply to software dev 2"
+      "Concrete way this could apply to software dev — be actionable and specific",
+      "Another specific application",
+      "Another specific application"
+    ],
+    "anti_patterns": [
+      "A practice or mistake in software dev that this research warns against or helps avoid"
     ],
     "relevance_score": 7
   },
-  "tags": ["tag1", "tag2", "tag3"]
+  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
 }
 
-Be specific and insightful, especially for the software_dev_relevance section — look for cross-industry connections even if the paper is not directly about software."""
+Be thorough and insightful. Extract real findings from the paper — do not fabricate. For software_dev_relevance, look hard for cross-industry connections even if the paper is not directly about software."""
 
 
 # --- Text Extraction ---
@@ -132,7 +156,7 @@ def extract_text_from_pdf_path(path: str) -> str:
     return "\n".join(pages)
 
 
-def truncate_text(text: str, max_chars: int = 40000) -> str:
+def truncate_text(text: str, max_chars: int = 80000) -> str:
     """
     Truncate text to fit within Claude's context.
     Keeps the beginning (abstract/intro) and end (conclusions).
@@ -247,7 +271,7 @@ def crawl_and_ingest(
 def summarize_paper(text: str, source: str = "") -> dict:
     """
     Call Claude to produce a structured JSON summary of the paper text.
-    Returns a parsed dict.
+    Returns a parsed dict, including the full extracted text.
     """
     client = anthropic.Anthropic()  # uses ANTHROPIC_API_KEY env var
 
@@ -257,7 +281,7 @@ def summarize_paper(text: str, source: str = "") -> dict:
     print(f"  Calling Claude ({ANTHROPIC_MODEL})...")
     response = client.messages.create(
         model=ANTHROPIC_MODEL,
-        max_tokens=2000,
+        max_tokens=4000,
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": user_message}],
     )
@@ -272,7 +296,10 @@ def summarize_paper(text: str, source: str = "") -> dict:
         raw = raw.strip()
 
     try:
-        return json.loads(raw)
+        result = json.loads(raw)
+        # Store full text (capped at 80k chars) for deep retrieval
+        result["full_text"] = text[:80000] if len(text) > 80000 else text
+        return result
     except json.JSONDecodeError as e:
         print(f"  Warning: Failed to parse JSON response: {e}")
         print(f"  Raw response: {raw[:300]}...")
