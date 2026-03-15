@@ -67,24 +67,30 @@ def search_papers(collection, query: str, top_k: int = DEFAULT_TOP_K) -> list[di
         metadata = results["metadatas"][0][i]
         distance = results["distances"][0][i]
 
+        def safe_json(val, fallback):
+            if not val:
+                return fallback
+            try:
+                return json.loads(val)
+            except (json.JSONDecodeError, TypeError):
+                return fallback
+
         # Reconstruct the summary dict from stored metadata + document
         paper = {
             "title": metadata.get("title", "Unknown"),
-            "authors": json.loads(metadata.get("authors", "[]")),
+            "authors": safe_json(metadata.get("authors"), []),
             "year": metadata.get("year"),
-            "industry_domain": metadata.get("industry_domain"),
-            "relevance_score": metadata.get("relevance_score"),
+            "industry_domain": metadata.get("industry_domain", ""),
+            "relevance_score": metadata.get("relevance_score", "N/A"),
             "distance": round(distance, 4),
             "abstract_summary": metadata.get("abstract_summary", ""),
-            "key_findings": json.loads(metadata.get("key_findings", "[]")),
+            "key_findings": [],  # not stored in metadata, omitted
             "software_dev_relevance": {
-                "summary": metadata.get("sw_relevance_summary", ""),
-                "specific_applications": json.loads(
-                    metadata.get("sw_specific_applications", "[]")
-                ),
-                "relevance_score": metadata.get("relevance_score"),
+                "summary": metadata.get("software_dev_summary", ""),
+                "specific_applications": safe_json(metadata.get("specific_applications"), []),
+                "relevance_score": metadata.get("relevance_score", "N/A"),
             },
-            "tags": json.loads(metadata.get("tags", "[]")),
+            "tags": safe_json(metadata.get("tags"), []),
             "source": metadata.get("source", ""),
         }
         papers.append(paper)
