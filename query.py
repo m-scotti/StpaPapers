@@ -22,7 +22,7 @@ from chromadb.utils import embedding_functions
 
 # --- Configuration ---
 CHROMA_PATH = "./chroma_db"
-COLLECTION_NAME = "papers"
+COLLECTION_NAME = "research_papers"
 ANTHROPIC_MODEL = "claude-sonnet-4-20250514"
 DEFAULT_TOP_K = 5
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
