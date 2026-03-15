@@ -15,6 +15,7 @@ Usage:
   open http://localhost:5000
 """
 
+import os
 import json
 import anthropic
 import chromadb
@@ -475,6 +476,88 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     /* Sections toggle */
     .view { display: none; }
     .view.active { display: block; }
+
+    /* Paper cards clickable */
+    .paper-card { cursor: pointer; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      z-index: 500;
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      max-width: 740px; width: 100%;
+      max-height: 85vh; overflow-y: auto;
+      position: relative;
+      transform: translateY(16px);
+      transition: transform 0.25s ease;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-header {
+      padding: 1.75rem 2rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0;
+      background: var(--surface); z-index: 10;
+      border-radius: 20px 20px 0 0;
+    }
+    .modal-domain {
+      font-size: 0.65rem; font-family: 'Syne', sans-serif;
+      font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent2); margin-bottom: 0.5rem;
+    }
+    .modal-title {
+      font-family: 'Syne', sans-serif; font-weight: 800;
+      font-size: 1.1rem; line-height: 1.35; margin-bottom: 0.5rem;
+    }
+    .modal-meta { font-size: 0.72rem; color: var(--text-muted); }
+    .modal-close {
+      position: absolute; top: 1.25rem; right: 1.25rem;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text-muted); border-radius: 8px;
+      width: 32px; height: 32px; cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+    .modal-close:hover { color: var(--text); border-color: var(--accent); }
+    .modal-body { padding: 1.75rem 2rem; display: flex; flex-direction: column; gap: 1.75rem; }
+    .modal-section-title {
+      font-family: 'Syne', sans-serif; font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.6rem;
+    }
+    .modal-text { font-size: 0.85rem; line-height: 1.75; color: var(--text); }
+    .modal-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .modal-list li {
+      font-size: 0.83rem; line-height: 1.6;
+      padding-left: 1.1rem; position: relative; color: var(--text);
+    }
+    .modal-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-size: 0.75rem; }
+    .modal-sw-box {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1.25rem;
+    }
+    .modal-score-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .modal-score-label { font-size: 0.7rem; color: var(--text-muted); }
+    .modal-score-bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .modal-score-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); border-radius: 3px; }
+    .modal-score-val { font-size: 0.75rem; font-family: 'Syne', sans-serif; font-weight: 700; color: var(--green); }
+    .modal-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .modal-source { font-size: 0.75rem; color: var(--accent); word-break: break-all; text-decoration: none; }
+    .modal-source:hover { text-decoration: underline; }
+    .modal-loading {
+      text-align: center; padding: 3rem; color: var(--text-muted);
+      font-size: 0.85rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    }
   </style>
 </head>
 <body>
@@ -545,6 +628,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
 </main>
 
+<!-- PAPER DETAIL MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
+  <div class="modal" id="modal">
+    <div id="modalContent">
+      <div class="modal-loading"><div class="spinner"></div>Loading paper...</div>
+    </div>
+  </div>
+</div>
+
+
 <script>
   let allPapers = [];
 
@@ -565,33 +658,111 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     renderPapersGrid(allPapers, 'papersGrid');
   }
 
+  function paperCardHTML(p) {
+    const score = p.relevance_score || 0;
+    const pct = (score / 10) * 100;
+    const tags = (p.tags || []).slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('');
+    const authors = (p.authors || []).slice(0,2).join(', ') + ((p.authors||[]).length > 2 ? ' et al.' : '');
+    const titleEsc = (p.title || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    return `
+      <div class="paper-card" onclick="openPaper('${titleEsc}')">
+        <div class="paper-domain">${p.industry_domain || 'Research'}</div>
+        <div class="paper-title">${p.title}</div>
+        <div class="paper-meta">${authors} · ${p.year || ''}</div>
+        <div class="paper-abstract">${p.abstract_summary || ''}</div>
+        <div class="paper-footer">
+          <div class="score-badge">
+            <div class="score-bar"><div class="score-fill" style="width:${pct}%"></div></div>
+            SW ${score}/10
+          </div>
+          <div class="paper-tags">${tags}</div>
+        </div>
+      </div>`;
+  }
+
   function renderPapersGrid(papers, targetId) {
     const grid = document.getElementById(targetId);
     if (!papers.length) {
       grid.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>No papers found.</p></div>';
       return;
     }
-    grid.innerHTML = papers.map(p => {
-      const score = p.relevance_score || 0;
-      const pct = (score / 10) * 100;
-      const tags = (p.tags || []).slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('');
-      const authors = (p.authors || []).slice(0,2).join(', ') + ((p.authors||[]).length > 2 ? ' et al.' : '');
-      return `
-        <div class="paper-card">
-          <div class="paper-domain">${p.industry_domain || 'Research'}</div>
-          <div class="paper-title">${p.title}</div>
-          <div class="paper-meta">${authors} · ${p.year || ''}</div>
-          <div class="paper-abstract">${p.abstract_summary || ''}</div>
-          <div class="paper-footer">
-            <div class="score-badge">
-              <div class="score-bar"><div class="score-fill" style="width:${pct}%"></div></div>
-              SW ${score}/10
-            </div>
-            <div class="paper-tags">${tags}</div>
-          </div>
-        </div>`;
-    }).join('');
+    grid.innerHTML = papers.map(paperCardHTML).join('');
   }
+
+  // --- Modal ---
+
+  async function openPaper(title) {
+    const overlay = document.getElementById('modalOverlay');
+    const content = document.getElementById('modalContent');
+    content.innerHTML = '<div class="modal-loading"><div class="spinner"></div>Loading paper...</div>';
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    try {
+      const res = await fetch('/api/paper?title=' + encodeURIComponent(title));
+      const p = await res.json();
+      if (p.error) { content.innerHTML = `<div class="modal-loading">Error: ${p.error}</div>`; return; }
+
+      const authors = (p.authors || []).join(', ');
+      const swRel = p.software_dev_relevance || {};
+      const score = swRel.relevance_score || 0;
+      const pct = (score / 10) * 100;
+      const swApps = swRel.specific_applications || [];
+      const findings = p.key_findings || [];
+      const tags = p.tags || [];
+      const source = p.source || '';
+
+      content.innerHTML = `
+        <div class="modal-header">
+          <button class="modal-close" onclick="closeModal()">✕</button>
+          <div class="modal-domain">${p.industry_domain || 'Research'}</div>
+          <div class="modal-title">${p.title}</div>
+          <div class="modal-meta">${authors}${p.year ? ' · ' + p.year : ''}</div>
+        </div>
+        <div class="modal-body">
+          <div>
+            <div class="modal-section-title">Abstract</div>
+            <div class="modal-text">${p.abstract_summary || 'N/A'}</div>
+          </div>
+          ${findings.length ? `<div>
+            <div class="modal-section-title">Key Findings</div>
+            <ul class="modal-list">${findings.map(f => `<li>${f}</li>`).join('')}</ul>
+          </div>` : ''}
+          <div>
+            <div class="modal-section-title">Software Development Relevance</div>
+            <div class="modal-sw-box">
+              <div class="modal-score-row">
+                <span class="modal-score-label">Relevance Score</span>
+                <div class="modal-score-bar"><div class="modal-score-fill" style="width:${pct}%"></div></div>
+                <span class="modal-score-val">${score}/10</span>
+              </div>
+              <div class="modal-text" style="margin-bottom:${swApps.length ? '1rem' : '0'}">${swRel.summary || 'N/A'}</div>
+              ${swApps.length ? `<div class="modal-section-title" style="margin-top:0.5rem">Specific Applications</div>
+              <ul class="modal-list">${swApps.map(a => `<li>${a}</li>`).join('')}</ul>` : ''}
+            </div>
+          </div>
+          ${tags.length ? `<div>
+            <div class="modal-section-title">Tags</div>
+            <div class="modal-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+          </div>` : ''}
+          ${source ? `<div>
+            <div class="modal-section-title">Source</div>
+            <a class="modal-source" href="${source}" target="_blank" rel="noopener">${source}</a>
+          </div>` : ''}
+        </div>`;
+    } catch(e) {
+      content.innerHTML = `<div class="modal-loading">Failed to load paper details.</div>`;
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // --- Search ---
 
   async function doSearch() {
     const q = document.getElementById('queryInput').value.trim();
@@ -622,12 +793,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         return;
       }
 
-      // Show answer
       document.getElementById('answerQuery').textContent = '"' + q + '"';
       document.getElementById('answerContent').textContent = data.answer;
       answerPanel.style.display = 'block';
 
-      // Show paper cards
       if (data.papers && data.papers.length) {
         const header = document.createElement('div');
         header.className = 'section-header';
@@ -698,6 +867,23 @@ def metadata_to_paper(metadata: dict, distance: float = None) -> dict:
 @app.route("/")
 def index():
     return render_template_string(HTML_TEMPLATE)
+
+
+@app.route("/api/paper")
+def api_paper():
+    """Return full details for a single paper by title from summaries.json."""
+    title = request.args.get("title", "").strip()
+    if not title:
+        return jsonify({"error": "No title provided"}), 400
+    summaries_path = "./summaries.json"
+    if not os.path.exists(summaries_path):
+        return jsonify({"error": "summaries.json not found"}), 404
+    with open(summaries_path) as f:
+        summaries = json.load(f)
+    for paper in summaries:
+        if paper.get("title", "").strip().lower() == title.lower():
+            return jsonify(paper)
+    return jsonify({"error": "Paper not found"}), 404
 
 
 @app.route("/api/papers")
