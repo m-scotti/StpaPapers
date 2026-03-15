@@ -1,0 +1,10 @@
+# Core
+anthropic>=0.25.0
+requests>=2.31.0
+
+# HTML parsing (for web pages and abstract pages)
+beautifulsoup4>=4.12.0
+
+# PDF text extraction — install at least one:
+pymupdf>=1.24.0       # preferred: fast, accurate (pip install pymupdf)
+# pypdf>=4.0.0        # fallback alternative (pip install pypdf)
