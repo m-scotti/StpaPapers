@@ -173,11 +173,55 @@ def print_raw_results(papers: list[dict]) -> None:
 
 # --- CLI ---
 
+def run_query(collection, question: str, top_k: int, raw: bool) -> None:
+    """Run a single query and print results."""
+    print(f"\nSearching for: '{question}'")
+    print(f"Retrieving top {top_k} papers...\n")
+
+    papers = search_papers(collection, question, top_k=top_k)
+
+    if not papers:
+        print("No results found. Have you run 'python vectorstore.py index summaries.json' yet?")
+        return
+
+    if raw:
+        print_raw_results(papers)
+    else:
+        print(f"Found {len(papers)} relevant paper(s). Synthesizing with Claude...\n")
+        answer = synthesize_with_claude(question, papers)
+        print("=" * 70)
+        print(answer)
+        print("=" * 70)
+
+
+def run_interactive(collection, top_k: int, raw: bool) -> None:
+    """Interactive REPL loop for querying the knowledge base."""
+    print("\n" + "=" * 70)
+    print("  Research Paper Knowledge Base — Interactive Mode")
+    print("  Type your question and press Enter. Type 'exit' to quit.")
+    print("=" * 70)
+
+    while True:
+        try:
+            question = input("\n> ").strip()
+        except (KeyboardInterrupt, EOFError):
+            print("\nGoodbye!")
+            break
+
+        if not question:
+            continue
+        if question.lower() in ("exit", "quit", "q"):
+            print("Goodbye!")
+            break
+
+        run_query(collection, question, top_k, raw)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Query the research paper knowledge base."
     )
-    parser.add_argument("question", help="Natural language question to ask")
+    parser.add_argument("question", nargs="?", help="Question to ask (omit for interactive mode)")
     parser.add_argument(
         "--top",
         type=int,
@@ -189,23 +233,17 @@ if __name__ == "__main__":
         action="store_true",
         help="Show raw search results without Claude synthesis",
     )
+    parser.add_argument(
+        "--interactive", "-i",
+        action="store_true",
+        help="Start interactive query session",
+    )
     args = parser.parse_args()
 
-    print(f"\nSearching for: '{args.question}'")
-    print(f"Retrieving top {args.top} papers...\n")
-
     collection = load_collection()
-    papers = search_papers(collection, args.question, top_k=args.top)
 
-    if not papers:
-        print("No results found. Have you run 'python vectorstore.py index summaries.json' yet?")
-        exit(1)
-
-    if args.raw:
-        print_raw_results(papers)
+    if args.interactive or not args.question:
+        run_interactive(collection, top_k=args.top, raw=args.raw)
     else:
-        print(f"Found {len(papers)} relevant paper(s). Synthesizing with Claude...\n")
-        answer = synthesize_with_claude(args.question, papers)
-        print("=" * 70)
-        print(answer)
+        run_query(collection, args.question, top_k=args.top, raw=args.raw)
         print("=" * 70)
