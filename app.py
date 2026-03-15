@@ -663,9 +663,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const pct = (score / 10) * 100;
     const tags = (p.tags || []).slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('');
     const authors = (p.authors || []).slice(0,2).join(', ') + ((p.authors||[]).length > 2 ? ' et al.' : '');
-    const titleEsc = (p.title || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     return `
-      <div class="paper-card" onclick="openPaper('${titleEsc}')">
+      <div class="paper-card" data-title="${(p.title||'').replace(/"/g, '&quot;')}">
         <div class="paper-domain">${p.industry_domain || 'Research'}</div>
         <div class="paper-title">${p.title}</div>
         <div class="paper-meta">${authors} · ${p.year || ''}</div>
@@ -817,6 +816,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       loading.style.display = 'none';
     }
   }
+
+  // Delegated click handler for paper cards
+  document.addEventListener('click', e => {
+    const card = e.target.closest('.paper-card');
+    if (card && card.dataset.title) openPaper(card.dataset.title);
+  });
 
   // Init
   fetch('/api/papers').then(r => r.json()).then(d => {
