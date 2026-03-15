@@ -707,9 +707,21 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       const score = swRel.relevance_score || 0;
       const pct = (score / 10) * 100;
       const swApps = swRel.specific_applications || [];
+      const antiPatterns = swRel.anti_patterns || [];
       const findings = p.key_findings || [];
+      const limitations = p.limitations || [];
+      const relatedWork = p.related_work || [];
+      const quotes = p.notable_quotes || [];
       const tags = p.tags || [];
       const source = p.source || '';
+
+      const section = (label, html) => `
+        <div>
+          <div class="modal-section-title">${label}</div>
+          ${html}
+        </div>`;
+
+      const list = items => `<ul class="modal-list">${items.map(i => `<li>${i}</li>`).join('')}</ul>`;
 
       content.innerHTML = `
         <div class="modal-header">
@@ -719,14 +731,25 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           <div class="modal-meta">${authors}${p.year ? ' · ' + p.year : ''}</div>
         </div>
         <div class="modal-body">
-          <div>
-            <div class="modal-section-title">Abstract</div>
-            <div class="modal-text">${p.abstract_summary || 'N/A'}</div>
-          </div>
-          ${findings.length ? `<div>
-            <div class="modal-section-title">Key Findings</div>
-            <ul class="modal-list">${findings.map(f => `<li>${f}</li>`).join('')}</ul>
-          </div>` : ''}
+
+          ${section('Abstract', `<div class="modal-text">${p.abstract_summary || 'N/A'}</div>`)}
+
+          ${findings.length ? section('Key Findings', list(findings)) : ''}
+
+          ${p.methodology ? section('Methodology', `<div class="modal-text">${p.methodology}</div>`) : ''}
+
+          ${limitations.length ? section('Limitations', list(limitations)) : ''}
+
+          ${relatedWork.length ? section('Related Work & Frameworks', list(relatedWork)) : ''}
+
+          ${quotes.length ? section('Notable Quotes', `
+            <div style="display:flex;flex-direction:column;gap:0.75rem">
+              ${quotes.map(q => `
+                <blockquote style="border-left:2px solid var(--accent);padding-left:1rem;margin:0;font-style:italic;font-size:0.83rem;color:var(--text-muted);line-height:1.7">
+                  ${q}
+                </blockquote>`).join('')}
+            </div>`) : ''}
+
           <div>
             <div class="modal-section-title">Software Development Relevance</div>
             <div class="modal-sw-box">
@@ -736,18 +759,21 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                 <span class="modal-score-val">${score}/10</span>
               </div>
               <div class="modal-text" style="margin-bottom:${swApps.length ? '1rem' : '0'}">${swRel.summary || 'N/A'}</div>
-              ${swApps.length ? `<div class="modal-section-title" style="margin-top:0.5rem">Specific Applications</div>
-              <ul class="modal-list">${swApps.map(a => `<li>${a}</li>`).join('')}</ul>` : ''}
+              ${swApps.length ? `
+                <div class="modal-section-title" style="margin-top:0.5rem">Specific Applications</div>
+                ${list(swApps)}` : ''}
+              ${antiPatterns.length ? `
+                <div class="modal-section-title" style="margin-top:1rem;color:var(--accent2)">Anti-Patterns to Avoid</div>
+                <ul class="modal-list" style="--bullet-color:var(--accent2)">
+                  ${antiPatterns.map(a => `<li style="color:var(--text)">${a}</li>`).join('')}
+                </ul>` : ''}
             </div>
           </div>
-          ${tags.length ? `<div>
-            <div class="modal-section-title">Tags</div>
-            <div class="modal-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
-          </div>` : ''}
-          ${source ? `<div>
-            <div class="modal-section-title">Source</div>
-            <a class="modal-source" href="${source}" target="_blank" rel="noopener">${source}</a>
-          </div>` : ''}
+
+          ${tags.length ? section('Tags', `<div class="modal-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>`) : ''}
+
+          ${source ? section('Source', `<a class="modal-source" href="${source}" target="_blank" rel="noopener">${source}</a>`) : ''}
+
         </div>`;
     } catch(e) {
       content.innerHTML = `<div class="modal-loading">Failed to load paper details.</div>`;
