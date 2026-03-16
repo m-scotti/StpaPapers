@@ -326,6 +326,32 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       font-family: 'Syne', sans-serif;
     }
 
+    .md-h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--green);
+      margin: 1.25rem 0 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .md-strong {
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+    }
+    .md-li {
+      padding-left: 1rem;
+      position: relative;
+      margin: 0.3rem 0;
+      font-size: 0.85rem;
+    }
+    .md-li span {
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+    .md-gap { margin: 0.6rem 0; }
+
     /* Papers Grid */
     .section-header {
       display: flex;
@@ -805,6 +831,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
+  function renderMarkdown(text) {
+    let html = text
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    html = html.replace(/^## (.+)$/gm, function(m, title) {
+      return '<h2 class="md-h2">' + title + '</h2>';
+    });
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="md-strong">$1</strong>');
+    html = html.replace(/^- (.+)$/gm, '<div class="md-li"><span>→</span>$1</div>');
+    html = html.replace(/\n\n/g, '<div class="md-gap"></div>');
+    html = html.replace(/\n/g, '<br>');
+    return html;
+  }
+
   // --- Search ---
 
   async function doSearch() {
@@ -859,16 +898,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       btn.disabled = false;
       loading.style.display = 'none';
     }
-  }
-
-  function renderMarkdown(text) {
-    return text
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-      .replace(/^## (.+)$/gm, '<h2 style="font-family:\'Syne\',sans-serif;font-size:0.85rem;font-weight:700;color:var(--green);margin:1.25rem 0 0.5rem;text-transform:uppercase;letter-spacing:0.08em;">$1</h2>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--text);font-family:\'Syne\',sans-serif;">$1</strong>')
-      .replace(/^- (.+)$/gm, '<div style="padding-left:1rem;position:relative;margin:0.3rem 0;font-size:0.85rem"><span style="position:absolute;left:0;color:var(--accent)">→</span>$1</div>')
-      .replace(/\n\n/g, '<div style="margin:0.6rem 0"></div>')
-      .replace(/\n/g, '<br>');
   }
 
   // Delegated click handler for paper cards
