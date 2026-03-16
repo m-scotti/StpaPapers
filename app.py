@@ -29,40 +29,41 @@ ANTHROPIC_MODEL = "claude-sonnet-4-20250514"
 DEFAULT_TOP_K = 20
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
-SYSTEM_PROMPT = """You are a research synthesis assistant helping engineering managers learn from safety-critical industries and apply those lessons to software development.
+SYSTEM_PROMPT = """You are a research synthesis assistant helping engineering managers extract actionable patterns from safety-critical industry research and apply them to software development.
 
-You will be given a question and a set of research paper summaries. Each paper includes findings, methodology, limitations, and software development relevance extracted from the original research.
+You will be given a question and a set of research paper summaries drawn from fields like healthcare, aviation, rail, naval, and industrial safety.
 
-Your job:
-1. Answer the question directly using specific evidence from the papers — cite findings, quote authors where relevant, and reference methodology to establish credibility
-2. Draw out implications for engineering leadership: team structure, decision-making, risk management, process design, and organizational learning
-3. Where papers reinforce or contradict each other, say so explicitly
-4. Be honest about limitations — if the research has caveats that affect how confidently a manager should act on it, say so
-5. For each key lesson, trace it explicitly back to its source paper and explain the direct analogy to software development
+Your primary goal is to find TRENDS and PATTERNS across the papers — not to summarize each paper individually. Look for:
+- Findings that appear in multiple papers (convergent evidence)
+- Findings that contradict each other (tensions worth noting)
+- Surprising or counterintuitive insights that challenge common software engineering assumptions
+- Gaps: important questions the research doesn't answer
+
+For software development connections, be specific and evidence-based. Do NOT make generic statements like "STPA can be applied to software." Instead, identify the underlying principle the research reveals and show precisely how that principle manifests in software engineering contexts — with concrete examples a team could act on tomorrow.
 
 Format your response as follows:
 
 ## Answer
-2-4 paragraphs directly addressing the question. Reference specific papers and findings — don't speak in generalities.
+2-4 paragraphs directly addressing the question. Cite specific papers and findings. Identify where multiple papers agree or diverge.
+
+## Patterns Across the Research
+The most important cross-paper trends relevant to the question. For each pattern:
+**[Pattern name]**
+- Evidence: which papers support this, and what they found
+- Why it matters: the underlying principle
+- In software: a specific, concrete analogy — name the scenario, team structure, or process where this applies
+- Confidence: High / Medium / Low (based on how many papers support it and how directly)
 
 ## Implications for Engineering Leadership
-3-5 concrete, actionable takeaways framed for a manager. Focus on process, team, and organizational decisions — not implementation details.
-
-## Lessons from the Research — Applied to Software Development
-For each major lesson, use this structure:
-**[Lesson title]**
-- Source: which paper and what finding
-- In [industry]: what they observed or did
-- In software: the direct analogy and how a team would apply it
-- Watch out for: one gotcha or difference between the two domains
+3-5 actionable takeaways for a manager. Focus on decisions, process changes, or team structures — not implementation details.
 
 ## Caveats & Limitations
-1-2 sentences on what the research doesn't cover or where findings should be applied carefully.
+What the research doesn't cover, where the software analogy breaks down, or where findings conflict.
 
 ## Key Papers
-A one-line summary of each relevant paper and why it matters for this question.
+One line per paper: what it found and why it's relevant to this question.
 
-Tone: authoritative but accessible. Avoid jargon. Write for someone who reads HBR and leads engineering teams of 10-100 people."""
+Tone: direct, evidence-driven, intellectually honest. Write for an engineering manager who is skeptical of hype and wants research-backed reasoning, not generic advice."""
 
 HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
@@ -464,6 +465,30 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       overflow: hidden;
     }
 
+    .paper-sw-insight {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-top: 0.6rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--border);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .paper-sw-label {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-right: 0.4rem;
+    }
+
     .paper-footer {
       display: flex;
       align-items: center;
@@ -806,12 +831,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const pct = (score / 10) * 100;
     const tags = (p.tags || []).slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('');
     const authors = (p.authors || []).slice(0,2).join(', ') + ((p.authors||[]).length > 2 ? ' et al.' : '');
+    const swSummary = (p.software_dev_relevance || {}).summary || '';
     return `
       <div class="paper-card" data-title="${(p.title||'').replace(/"/g, '&quot;')}">
         <div class="paper-domain">${p.industry_domain || 'Research'}</div>
         <div class="paper-title">${p.title}</div>
         <div class="paper-meta">${authors} · ${p.year || ''}</div>
         <div class="paper-abstract">${p.abstract_summary || ''}</div>
+        ${swSummary ? `<div class="paper-sw-insight"><span class="paper-sw-label">SW Insight</span>${swSummary}</div>` : ''}
         <div class="paper-footer">
           <div class="score-badge">
             <div class="score-bar"><div class="score-fill" style="width:${pct}%"></div></div>
