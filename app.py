@@ -26,7 +26,7 @@ from flask import Flask, render_template_string, request, jsonify
 CHROMA_PATH = "./chroma_db"
 COLLECTION_NAME = "research_papers"
 ANTHROPIC_MODEL = "claude-sonnet-4-20250514"
-DEFAULT_TOP_K = 5
+DEFAULT_TOP_K = 20
 EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 SYSTEM_PROMPT = """You are a research synthesis assistant helping engineering managers learn from safety-critical industries and apply those lessons to software development.
@@ -658,11 +658,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         <button class="search-btn" id="searchBtn" onclick="doSearch()">Search</button>
       </div>
       <div class="search-options">
-        <label>
-          Top results: <strong id="topKVal">5</strong>
-          <input type="range" min="1" max="10" value="5" id="topK"
-            oninput="document.getElementById('topKVal').textContent=this.value"/>
-        </label>
+        <span style="font-size:0.72rem;color:var(--text-muted)">
+          Automatically selecting the <strong style="color:var(--accent)">20 most relevant papers</strong> from your knowledge base for each query.
+        </span>
       </div>
     </div>
 
@@ -870,7 +868,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const q = document.getElementById('queryInput').value.trim();
     if (!q) return;
 
-    const topK = parseInt(document.getElementById('topK').value);
     const btn = document.getElementById('searchBtn');
     const loading = document.getElementById('loading');
     const answerPanel = document.getElementById('answerPanel');
@@ -885,7 +882,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       const res = await fetch('/api/search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: q, top_k: topK })
+        body: JSON.stringify({ query: q })
       });
       const data = await res.json();
 
