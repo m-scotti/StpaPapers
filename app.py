@@ -352,6 +352,29 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
     .md-gap { margin: 0.6rem 0; }
 
+    /* Marked.js rendered markdown styles */
+    .answer-content h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--green);
+      margin: 1.25rem 0 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .answer-content h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 1rem 0 0.4rem;
+    }
+    .answer-content strong { color: var(--text); }
+    .answer-content p { margin-bottom: 0.75rem; font-size: 0.88rem; line-height: 1.8; }
+    .answer-content ul { padding-left: 1.25rem; margin-bottom: 0.75rem; }
+    .answer-content li { font-size: 0.85rem; line-height: 1.7; margin-bottom: 0.25rem; }
+    .answer-content hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+
     /* Papers Grid */
     .section-header {
       display: flex;
@@ -832,16 +855,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
   function renderMarkdown(text) {
-    let html = text
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    html = html.replace(/^## (.+)$/gm, function(m, title) {
-      return '<h2 class="md-h2">' + title + '</h2>';
-    });
-    html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="md-strong">$1</strong>');
-    html = html.replace(/^- (.+)$/gm, '<div class="md-li"><span>→</span>$1</div>');
-    html = html.replace(/\n\n/g, '<div class="md-gap"></div>');
-    html = html.replace(/\n/g, '<br>');
-    return html;
+    if (typeof marked !== 'undefined') {
+      return marked.parse(text);
+    }
+    // Fallback: plain text
+    const div = document.createElement('div');
+    div.textContent = text;
+    return '<pre style="white-space:pre-wrap;font-family:inherit">' + div.innerHTML + '</pre>';
   }
 
   // --- Search ---
@@ -911,6 +931,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     document.getElementById('paperCount').textContent = (d.papers||[]).length + ' papers';
   });
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 </body>
 </html>
 """
