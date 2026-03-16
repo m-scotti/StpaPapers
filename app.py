@@ -625,6 +625,28 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       text-align: center; padding: 3rem; color: var(--text-muted);
       font-size: 0.85rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;
     }
+
+    /* Browse controls */
+    .browse-controls {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      align-items: center;
+    }
+    .browse-controls .search-input { flex: 1; }
+    .browse-sort {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      outline: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .browse-sort:focus { border-color: var(--accent); }
   </style>
 </head>
 <body>
@@ -686,6 +708,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <span class="section-title">All Papers</span>
       <span class="section-count" id="browseCount"></span>
     </div>
+    <div class="browse-controls">
+      <input
+        class="search-input"
+        id="browseSearch"
+        type="text"
+        placeholder="Filter by title, author, domain, tag, or keyword..."
+        oninput="filterPapers()"
+      />
+      <select id="browseSort" class="browse-sort" onchange="filterPapers()">
+        <option value="relevance">Sort: SW Relevance</option>
+        <option value="year">Sort: Year</option>
+        <option value="title">Sort: Title A–Z</option>
+      </select>
+    </div>
+    <div id="browseEmpty" class="empty-state" style="display:none">
+      <div class="icon">🔍</div><p>No papers match your filter.</p>
+    </div>
     <div class="papers-grid" id="papersGrid">
       <div class="empty-state"><div class="icon">📚</div><p>Loading papers...</p></div>
     </div>
@@ -712,6 +751,45 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     document.getElementById('view-' + name).classList.add('active');
     event.target.classList.add('active');
     if (name === 'browse' && allPapers.length === 0) loadPapers();
+  }
+
+  function filterPapers() {
+    const query = document.getElementById('browseSearch').value.toLowerCase().trim();
+    const sort = document.getElementById('browseSort').value;
+
+    let filtered = allPapers.filter(p => {
+      if (!query) return true;
+      const searchable = [
+        p.title || '',
+        (p.authors || []).join(' '),
+        p.industry_domain || '',
+        p.abstract_summary || '',
+        (p.tags || []).join(' '),
+        (p.software_dev_relevance || {}).summary || '',
+      ].join(' ').toLowerCase();
+      return searchable.includes(query);
+    });
+
+    filtered.sort((a, b) => {
+      if (sort === 'relevance') return (b.relevance_score || 0) - (a.relevance_score || 0);
+      if (sort === 'year') return (b.year || 0) - (a.year || 0);
+      if (sort === 'title') return (a.title || '').localeCompare(b.title || '');
+      return 0;
+    });
+
+    const empty = document.getElementById('browseEmpty');
+    if (filtered.length === 0) {
+      empty.style.display = 'block';
+      document.getElementById('papersGrid').innerHTML = '';
+    } else {
+      empty.style.display = 'none';
+      renderPapersGrid(filtered, 'papersGrid');
+    }
+
+    document.getElementById('browseCount').textContent =
+      filtered.length === allPapers.length
+        ? allPapers.length + ' indexed'
+        : filtered.length + ' of ' + allPapers.length;
   }
 
   async function loadPapers() {
