@@ -1,0 +1,1 @@
+web: /app/.venv/bin/gunicorn app:app
