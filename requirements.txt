@@ -1,6 +1,6 @@
 anthropic
 requests
 beautifulsoup4
-pymupdf
+pymupdf==1.24.0
 chromadb
 sentence-transformers
