@@ -1079,6 +1079,10 @@ def metadata_to_paper(metadata: dict, distance: float = None) -> dict:
 def index():
     return render_template_string(HTML_TEMPLATE)
 
+@app.route("/debug")
+def debug():
+    key = os.environ.get("ANTHROPIC_API_KEY", "NOT SET")
+    return jsonify({"key_set": key != "NOT SET", "key_preview": key[:10] + "..." if key != "NOT SET" else "NOT SET"})
 
 @app.route("/api/paper")
 def api_paper():
