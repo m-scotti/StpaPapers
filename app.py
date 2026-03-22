@@ -65,19 +65,27 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Research Knowledge Base</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <title>STPA Research Knowledge Base</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --bg: #0a0a0f;
-      --surface: #12121a;
-      --surface2: #1a1a26;
-      --border: #2a2a3d;
-      --accent: #7b6cff;
-      --accent2: #ff6c9d;
-      --text: #e8e8f0;
-      --text-muted: #7a7a9a;
-      --green: #4dffb4;
+      --bg: #f7f6f2;
+      --surface: #ffffff;
+      --surface2: #f0efe9;
+      --border: #e2e0d8;
+      --border-strong: #c8c5b8;
+      --accent: #1d3461;
+      --accent-light: #e8edf5;
+      --accent2: #c0392b;
+      --accent2-light: #fdf0ef;
+      --green: #166534;
+      --green-light: #dcfce7;
+      --text: #1a1917;
+      --text-muted: #6b6860;
+      --text-light: #9c9a94;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+      --shadow-lg: 0 20px 50px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.06);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -85,61 +93,62 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'DM Mono', monospace;
+      font-family: 'Source Serif 4', Georgia, serif;
       min-height: 100vh;
-      line-height: 1.6;
+      line-height: 1.65;
+      font-size: 16px;
     }
 
-    /* Grain overlay */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.4;
-    }
-
+    /* Header */
     header {
+      background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 1.5rem 2.5rem;
+      padding: 0 2.5rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      height: 64px;
       position: sticky;
       top: 0;
-      background: rgba(10,10,15,0.92);
-      backdrop-filter: blur(12px);
       z-index: 100;
+      box-shadow: var(--shadow);
     }
 
     .logo {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 1.1rem;
-      letter-spacing: -0.02em;
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      color: var(--accent);
+      letter-spacing: -0.01em;
       display: flex;
       align-items: center;
       gap: 0.6rem;
     }
 
-    .logo-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
+    .logo-mark {
+      width: 28px;
+      height: 28px;
       background: var(--accent);
-      box-shadow: 0 0 12px var(--accent);
-      animation: pulse 2s infinite;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: 'IBM Plex Mono', monospace;
+      flex-shrink: 0;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 12px var(--accent); }
-      50% { opacity: 0.5; box-shadow: 0 0 4px var(--accent); }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
     }
 
     .paper-count {
-      font-size: 0.7rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
       color: var(--text-muted);
       background: var(--surface2);
       padding: 0.3rem 0.75rem;
@@ -149,61 +158,62 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     .tabs {
       display: flex;
-      gap: 0.25rem;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--surface2);
     }
 
     .tab {
-      padding: 0.4rem 1rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
+      padding: 0.4rem 1.1rem;
+      font-size: 0.8rem;
+      font-family: 'Source Serif 4', serif;
       cursor: pointer;
       border: none;
       background: transparent;
       color: var(--text-muted);
-      font-family: 'DM Mono', monospace;
       transition: all 0.15s;
+      border-right: 1px solid var(--border);
     }
 
-    .tab.active, .tab:hover {
-      background: var(--surface2);
+    .tab:last-child { border-right: none; }
+
+    .tab.active {
+      background: var(--surface);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .tab:hover:not(.active) {
+      background: var(--border);
       color: var(--text);
     }
 
+    /* Main layout */
     main {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 2.5rem;
-      position: relative;
-      z-index: 1;
+      padding: 2.5rem 2.5rem;
     }
 
-    /* Search Panel */
+    /* Search panel */
     .search-panel {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 12px;
       padding: 2rem;
-      margin-bottom: 2.5rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .search-panel::before {
-      content: '';
-      position: absolute;
-      top: -60px; right: -60px;
-      width: 200px; height: 200px;
-      background: radial-gradient(circle, rgba(123,108,255,0.12) 0%, transparent 70%);
-      pointer-events: none;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
     }
 
     .search-label {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--accent);
+      color: var(--text-muted);
       margin-bottom: 0.75rem;
       display: block;
     }
@@ -211,249 +221,231 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .search-row {
       display: flex;
       gap: 0.75rem;
-      align-items: stretch;
     }
 
     .search-input {
       flex: 1;
       background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 0.85rem 1.25rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 0.8rem 1.1rem;
       color: var(--text);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.9rem;
+      font-family: 'Source Serif 4', serif;
+      font-size: 1rem;
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.15s, box-shadow 0.15s;
     }
 
     .search-input:focus {
       border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(29, 52, 97, 0.08);
     }
 
-    .search-input::placeholder { color: var(--text-muted); }
+    .search-input::placeholder { color: var(--text-light); }
 
     .search-btn {
       background: var(--accent);
       color: white;
       border: none;
-      border-radius: 10px;
-      padding: 0.85rem 1.5rem;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 0.85rem;
+      border-radius: 8px;
+      padding: 0.8rem 1.6rem;
+      font-family: 'Source Serif 4', serif;
+      font-weight: 600;
+      font-size: 0.9rem;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.15s;
       white-space: nowrap;
+      letter-spacing: 0.01em;
     }
 
-    .search-btn:hover { background: #9a8eff; transform: translateY(-1px); }
+    .search-btn:hover { background: #152849; transform: translateY(-1px); box-shadow: var(--shadow-md); }
     .search-btn:active { transform: translateY(0); }
-    .search-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .search-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
-    .search-options {
-      display: flex;
-      gap: 1.5rem;
-      margin-top: 1rem;
-      align-items: center;
-    }
-
-    .search-options label {
-      font-size: 0.75rem;
+    .search-hint {
+      margin-top: 0.85rem;
+      font-size: 0.82rem;
       color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      cursor: pointer;
+      font-style: italic;
     }
 
-    .search-options input[type=range] { accent-color: var(--accent); }
-
-    /* Answer Panel */
+    /* Answer panel */
     .answer-panel {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2rem;
+      border-radius: 12px;
       margin-bottom: 2rem;
       display: none;
       animation: fadeIn 0.3s ease;
+      box-shadow: var(--shadow);
+      overflow: hidden;
     }
 
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
     .answer-header {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      margin-bottom: 1.25rem;
-      padding-bottom: 1rem;
+      padding: 1.25rem 1.75rem;
       border-bottom: 1px solid var(--border);
+      background: var(--surface2);
     }
 
     .answer-badge {
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 0.65rem;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      letter-spacing: 0.1em;
+      font-weight: 500;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 0.25rem 0.6rem;
-      border-radius: 100px;
-      background: rgba(123,108,255,0.15);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      background: var(--accent-light);
       color: var(--accent);
-      border: 1px solid rgba(123,108,255,0.3);
+      border: 1px solid rgba(29, 52, 97, 0.15);
     }
 
     .answer-query {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
       font-style: italic;
     }
 
     .answer-content {
-      font-size: 0.88rem;
+      padding: 1.75rem;
+      font-size: 0.95rem;
       line-height: 1.8;
       color: var(--text);
-      white-space: pre-wrap;
     }
 
-    .answer-content h2, .answer-content strong {
-      color: var(--green);
-      font-family: 'Syne', sans-serif;
-    }
-
-    .md-h2 {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--green);
-      margin: 1.25rem 0 0.5rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .md-strong {
-      color: var(--text);
-      font-family: 'Syne', sans-serif;
-    }
-    .md-li {
-      padding-left: 1rem;
-      position: relative;
-      margin: 0.3rem 0;
-      font-size: 0.85rem;
-    }
-    .md-li span {
-      position: absolute;
-      left: 0;
-      color: var(--accent);
-    }
-    .md-gap { margin: 0.6rem 0; }
-
-    /* Marked.js rendered markdown styles */
+    /* Markdown rendered styles */
     .answer-content h2 {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--green);
-      margin: 1.25rem 0 0.5rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .answer-content h3 {
-      font-family: 'Syne', sans-serif;
-      font-size: 0.82rem;
-      font-weight: 700;
+      font-family: 'Fraunces', serif;
+      font-size: 1rem;
+      font-weight: 600;
       color: var(--accent);
-      margin: 1rem 0 0.4rem;
+      margin: 1.75rem 0 0.6rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+      letter-spacing: -0.01em;
     }
-    .answer-content strong { color: var(--text); }
-    .answer-content p { margin-bottom: 0.75rem; font-size: 0.88rem; line-height: 1.8; }
-    .answer-content ul { padding-left: 1.25rem; margin-bottom: 0.75rem; }
-    .answer-content li { font-size: 0.85rem; line-height: 1.7; margin-bottom: 0.25rem; }
-    .answer-content hr { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
+    .answer-content h2:first-child { margin-top: 0; }
+    .answer-content h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 1.25rem 0 0.4rem;
+    }
+    .answer-content p { margin-bottom: 0.85rem; }
+    .answer-content strong { color: var(--text); font-weight: 600; }
+    .answer-content ul, .answer-content ol { padding-left: 1.5rem; margin-bottom: 0.85rem; }
+    .answer-content li { margin-bottom: 0.35rem; line-height: 1.7; }
+    .answer-content hr { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+    .answer-content em { color: var(--text-muted); }
 
-    /* Papers Grid */
+    /* Loading */
+    .loading {
+      display: none;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      padding: 1.25rem 0;
+      font-style: italic;
+    }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Section header */
     .section-header {
       display: flex;
       align-items: baseline;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
     }
 
     .section-title {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 1.1rem;
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 1.2rem;
+      color: var(--text);
+      letter-spacing: -0.01em;
     }
 
     .section-count {
-      font-size: 0.7rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
       color: var(--text-muted);
     }
 
+    /* Papers grid */
     .papers-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
       gap: 1rem;
     }
 
     .paper-card {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1.25rem;
-      transition: all 0.2s;
-      cursor: default;
-      position: relative;
-      overflow: hidden;
+      border-radius: 10px;
+      padding: 1.25rem 1.35rem;
+      transition: all 0.18s;
+      cursor: pointer;
+      box-shadow: var(--shadow);
     }
 
     .paper-card:hover {
       border-color: var(--accent);
       transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(123,108,255,0.1);
+      box-shadow: var(--shadow-md);
     }
-
-    .paper-card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
-    .paper-card:hover::after { opacity: 1; }
 
     .paper-domain {
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 0.65rem;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      letter-spacing: 0.1em;
+      font-weight: 500;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--accent2);
-      margin-bottom: 0.5rem;
+      background: var(--accent2-light);
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      margin-bottom: 0.6rem;
     }
 
     .paper-title {
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      font-size: 0.9rem;
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      font-size: 0.95rem;
       line-height: 1.4;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
       color: var(--text);
+      letter-spacing: -0.01em;
     }
 
     .paper-meta {
-      font-size: 0.7rem;
-      color: var(--text-muted);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--text-light);
       margin-bottom: 0.75rem;
     }
 
     .paper-abstract {
-      font-size: 0.78rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
-      line-height: 1.6;
+      line-height: 1.65;
       display: -webkit-box;
       -webkit-line-clamp: 3;
       -webkit-box-orient: vertical;
@@ -461,11 +453,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
 
     .paper-sw-insight {
-      font-size: 0.75rem;
+      font-size: 0.82rem;
       color: var(--text-muted);
-      line-height: 1.55;
-      margin-top: 0.6rem;
-      padding-top: 0.6rem;
+      line-height: 1.6;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
       border-top: 1px solid var(--border);
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -475,13 +467,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     .paper-sw-label {
       display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 0.6rem;
-      font-family: 'Syne', sans-serif;
-      font-weight: 700;
-      letter-spacing: 0.08em;
+      font-weight: 500;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--accent);
+      color: var(--green);
+      background: var(--green-light);
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
       margin-right: 0.4rem;
+      vertical-align: middle;
     }
 
     .paper-footer {
@@ -496,13 +492,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .score-badge {
       display: flex;
       align-items: center;
-      gap: 0.35rem;
-      font-size: 0.7rem;
+      gap: 0.4rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.68rem;
       color: var(--green);
     }
 
     .score-bar {
-      width: 50px;
+      width: 44px;
       height: 4px;
       background: var(--border);
       border-radius: 2px;
@@ -511,7 +508,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     .score-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--accent), var(--green));
+      background: var(--green);
       border-radius: 2px;
     }
 
@@ -522,33 +519,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
 
     .tag {
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 0.6rem;
-      padding: 0.15rem 0.5rem;
-      border-radius: 100px;
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
       background: var(--surface2);
       color: var(--text-muted);
       border: 1px solid var(--border);
     }
-
-    /* Loading */
-    .loading {
-      display: none;
-      align-items: center;
-      gap: 0.75rem;
-      color: var(--text-muted);
-      font-size: 0.8rem;
-      padding: 1rem 0;
-    }
-
-    .spinner {
-      width: 16px; height: 16px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Empty state */
     .empty-state {
@@ -557,130 +535,252 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       color: var(--text-muted);
     }
 
-    .empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; }
-    .empty-state p { font-size: 0.85rem; }
+    .empty-state .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+    .empty-state p { font-size: 0.9rem; font-style: italic; }
 
-    /* Sections toggle */
+    /* Views */
     .view { display: none; }
     .view.active { display: block; }
-
-    /* Paper cards clickable */
-    .paper-card { cursor: pointer; }
-
-    /* Modal */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(6px);
-      z-index: 500;
-      display: flex; align-items: center; justify-content: center;
-      padding: 2rem;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.2s;
-    }
-    .modal-overlay.open { opacity: 1; pointer-events: all; }
-    .modal {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      max-width: 740px; width: 100%;
-      max-height: 85vh; overflow-y: auto;
-      position: relative;
-      transform: translateY(16px);
-      transition: transform 0.25s ease;
-    }
-    .modal-overlay.open .modal { transform: translateY(0); }
-    .modal-header {
-      padding: 1.75rem 2rem 1.25rem;
-      border-bottom: 1px solid var(--border);
-      position: sticky; top: 0;
-      background: var(--surface); z-index: 10;
-      border-radius: 20px 20px 0 0;
-    }
-    .modal-domain {
-      font-size: 0.65rem; font-family: 'Syne', sans-serif;
-      font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--accent2); margin-bottom: 0.5rem;
-    }
-    .modal-title {
-      font-family: 'Syne', sans-serif; font-weight: 800;
-      font-size: 1.1rem; line-height: 1.35; margin-bottom: 0.5rem;
-    }
-    .modal-meta { font-size: 0.72rem; color: var(--text-muted); }
-    .modal-close {
-      position: absolute; top: 1.25rem; right: 1.25rem;
-      background: var(--surface2); border: 1px solid var(--border);
-      color: var(--text-muted); border-radius: 8px;
-      width: 32px; height: 32px; cursor: pointer; font-size: 1rem;
-      display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s;
-    }
-    .modal-close:hover { color: var(--text); border-color: var(--accent); }
-    .modal-body { padding: 1.75rem 2rem; display: flex; flex-direction: column; gap: 1.75rem; }
-    .modal-section-title {
-      font-family: 'Syne', sans-serif; font-size: 0.65rem; font-weight: 700;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 0.6rem;
-    }
-    .modal-text { font-size: 0.85rem; line-height: 1.75; color: var(--text); }
-    .modal-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
-    .modal-list li {
-      font-size: 0.83rem; line-height: 1.6;
-      padding-left: 1.1rem; position: relative; color: var(--text);
-    }
-    .modal-list li::before { content: '→'; position: absolute; left: 0; color: var(--accent); font-size: 0.75rem; }
-    .modal-sw-box {
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 12px; padding: 1.25rem;
-    }
-    .modal-score-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
-    .modal-score-label { font-size: 0.7rem; color: var(--text-muted); }
-    .modal-score-bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-    .modal-score-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); border-radius: 3px; }
-    .modal-score-val { font-size: 0.75rem; font-family: 'Syne', sans-serif; font-weight: 700; color: var(--green); }
-    .modal-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
-    .modal-source { font-size: 0.75rem; color: var(--accent); word-break: break-all; text-decoration: none; }
-    .modal-source:hover { text-decoration: underline; }
-    .modal-loading {
-      text-align: center; padding: 3rem; color: var(--text-muted);
-      font-size: 0.85rem; display: flex; flex-direction: column; align-items: center; gap: 1rem;
-    }
 
     /* Browse controls */
     .browse-controls {
       display: flex;
       gap: 0.75rem;
       margin-bottom: 1.5rem;
-      align-items: center;
     }
+
     .browse-controls .search-input { flex: 1; }
+
     .browse-sort {
       background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 0.85rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 0.8rem 1rem;
       color: var(--text);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.78rem;
+      font-family: 'Source Serif 4', serif;
+      font-size: 0.85rem;
       outline: none;
       cursor: pointer;
       white-space: nowrap;
     }
+
     .browse-sort:focus { border-color: var(--accent); }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(20, 18, 15, 0.55);
+      backdrop-filter: blur(4px);
+      z-index: 500;
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      max-width: 760px; width: 100%;
+      max-height: 88vh; overflow-y: auto;
+      position: relative;
+      transform: translateY(12px);
+      transition: transform 0.25s ease;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal-header {
+      padding: 1.75rem 2rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0;
+      background: var(--surface); z-index: 10;
+      border-radius: 14px 14px 0 0;
+    }
+
+    .modal-domain {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent2);
+      background: var(--accent2-light);
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+      margin-bottom: 0.6rem;
+    }
+
+    .modal-title {
+      font-family: 'Fraunces', serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      line-height: 1.35;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .modal-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .modal-close {
+      position: absolute; top: 1.25rem; right: 1.25rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 6px;
+      width: 30px; height: 30px;
+      cursor: pointer; font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .modal-close:hover { color: var(--text); border-color: var(--accent); background: var(--accent-light); }
+
+    .modal-body {
+      padding: 1.75rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    .modal-section-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-text {
+      font-size: 0.9rem;
+      line-height: 1.75;
+      color: var(--text);
+    }
+
+    .modal-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .modal-list li {
+      font-size: 0.88rem;
+      line-height: 1.65;
+      padding-left: 1.25rem;
+      position: relative;
+      color: var(--text);
+    }
+
+    .modal-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-size: 0.75rem;
+      top: 0.15rem;
+    }
+
+    .modal-sw-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.25rem;
+    }
+
+    .modal-score-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .modal-score-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .modal-score-bar {
+      flex: 1;
+      height: 5px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .modal-score-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 3px;
+    }
+
+    .modal-score-val {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 500;
+      color: var(--green);
+    }
+
+    .modal-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+    .modal-source {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--accent);
+      word-break: break-all;
+      text-decoration: none;
+    }
+
+    .modal-source:hover { text-decoration: underline; }
+
+    .modal-loading {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-style: italic;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    blockquote {
+      border-left: 3px solid var(--accent);
+      padding-left: 1rem;
+      margin: 0;
+      font-style: italic;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
   </style>
 </head>
 <body>
 
 <header>
   <div class="logo">
-    <div class="logo-dot"></div>
-    Research KB
+    <div class="logo-mark">KB</div>
+    STPA Research Knowledge Base
   </div>
-  <div class="tabs">
-    <button class="tab active" onclick="showView('search')">Search</button>
-    <button class="tab" onclick="showView('browse')">Browse</button>
+  <div class="header-right">
+    <div class="tabs">
+      <button class="tab active" onclick="showView('search', event)">Search</button>
+      <button class="tab" onclick="showView('browse', event)">Browse</button>
+    </div>
+    <div class="paper-count" id="paperCount">— papers</div>
   </div>
-  <div class="paper-count" id="paperCount">— papers</div>
 </header>
 
 <main>
@@ -688,27 +788,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <!-- SEARCH VIEW -->
   <div class="view active" id="view-search">
     <div class="search-panel">
-      <span class="search-label">Ask a question</span>
+      <span class="search-label">Ask a research question</span>
       <div class="search-row">
         <input
           class="search-input"
           id="queryInput"
           type="text"
-          placeholder="How can safety analysis improve software architecture?"
+          placeholder="How does safety analysis improve system architecture decisions?"
           onkeydown="if(event.key==='Enter') doSearch()"
         />
         <button class="search-btn" id="searchBtn" onclick="doSearch()">Search</button>
       </div>
-      <div class="search-options">
-        <span style="font-size:0.72rem;color:var(--text-muted)">
-          Automatically selecting the <strong style="color:var(--accent)">20 most relevant papers</strong> from your knowledge base for each query.
-        </span>
-      </div>
+      <p class="search-hint">Retrieves the 20 most relevant papers and synthesizes an answer with Claude.</p>
     </div>
 
     <div class="loading" id="loading">
       <div class="spinner"></div>
-      Retrieving papers and synthesizing answer...
+      Retrieving papers and synthesizing answer…
     </div>
 
     <div class="answer-panel" id="answerPanel">
@@ -733,7 +829,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         class="search-input"
         id="browseSearch"
         type="text"
-        placeholder="Filter by title, author, domain, tag, or keyword..."
+        placeholder="Filter by title, author, domain, or keyword…"
         oninput="filterPapers()"
       />
       <select id="browseSort" class="browse-sort" onchange="filterPapers()">
@@ -746,7 +842,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <div class="icon">🔍</div><p>No papers match your filter.</p>
     </div>
     <div class="papers-grid" id="papersGrid">
-      <div class="empty-state"><div class="icon">📚</div><p>Loading papers...</p></div>
+      <div class="empty-state"><div class="icon">📚</div><p>Loading papers…</p></div>
     </div>
   </div>
 
@@ -756,20 +852,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
   <div class="modal" id="modal">
     <div id="modalContent">
-      <div class="modal-loading"><div class="spinner"></div>Loading paper...</div>
+      <div class="modal-loading"><div class="spinner"></div>Loading paper…</div>
     </div>
   </div>
 </div>
 
-
 <script>
   let allPapers = [];
 
-  function showView(name) {
+  function showView(name, event) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.getElementById('view-' + name).classList.add('active');
-    event.target.classList.add('active');
+    if (event && event.target) event.target.classList.add('active');
     if (name === 'browse' && allPapers.length === 0) loadPapers();
   }
 
@@ -831,7 +926,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <div class="paper-card" data-title="${(p.title||'').replace(/"/g, '&quot;')}">
         <div class="paper-domain">${p.industry_domain || 'Research'}</div>
         <div class="paper-title">${p.title}</div>
-        <div class="paper-meta">${authors} · ${p.year || ''}</div>
+        <div class="paper-meta">${authors}${p.year ? ' · ' + p.year : ''}</div>
         <div class="paper-abstract">${p.abstract_summary || ''}</div>
         ${swSummary ? `<div class="paper-sw-insight"><span class="paper-sw-label">SW Insight</span>${swSummary}</div>` : ''}
         <div class="paper-footer">
@@ -853,12 +948,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     grid.innerHTML = papers.map(paperCardHTML).join('');
   }
 
-  // --- Modal ---
-
   async function openPaper(title) {
     const overlay = document.getElementById('modalOverlay');
     const content = document.getElementById('modalContent');
-    content.innerHTML = '<div class="modal-loading"><div class="spinner"></div>Loading paper...</div>';
+    content.innerHTML = '<div class="modal-loading"><div class="spinner"></div>Loading paper…</div>';
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
 
@@ -909,10 +1002,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
           ${quotes.length ? section('Notable Quotes', `
             <div style="display:flex;flex-direction:column;gap:0.75rem">
-              ${quotes.map(q => `
-                <blockquote style="border-left:2px solid var(--accent);padding-left:1rem;margin:0;font-style:italic;font-size:0.83rem;color:var(--text-muted);line-height:1.7">
-                  ${q}
-                </blockquote>`).join('')}
+              ${quotes.map(q => `<blockquote>${q}</blockquote>`).join('')}
             </div>`) : ''}
 
           <div>
@@ -925,11 +1015,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
               </div>
               <div class="modal-text" style="margin-bottom:${swApps.length ? '1rem' : '0'}">${swRel.summary || 'N/A'}</div>
               ${swApps.length ? `
-                <div class="modal-section-title" style="margin-top:0.5rem">Specific Applications</div>
+                <div class="modal-section-title" style="margin-top:0.75rem">Specific Applications</div>
                 ${list(swApps)}` : ''}
               ${antiPatterns.length ? `
                 <div class="modal-section-title" style="margin-top:1rem;color:var(--accent2)">Anti-Patterns to Avoid</div>
-                <ul class="modal-list" style="--bullet-color:var(--accent2)">
+                <ul class="modal-list">
                   ${antiPatterns.map(a => `<li style="color:var(--text)">${a}</li>`).join('')}
                 </ul>` : ''}
             </div>
@@ -953,16 +1043,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
   function renderMarkdown(text) {
-    if (typeof marked !== 'undefined') {
-      return marked.parse(text);
-    }
-    // Fallback: plain text
+    if (typeof marked !== 'undefined') return marked.parse(text);
     const div = document.createElement('div');
     div.textContent = text;
     return '<pre style="white-space:pre-wrap;font-family:inherit">' + div.innerHTML + '</pre>';
   }
-
-  // --- Search ---
 
   async function doSearch() {
     const q = document.getElementById('queryInput').value.trim();
@@ -999,7 +1084,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       if (data.papers && data.papers.length) {
         const header = document.createElement('div');
         header.className = 'section-header';
-        header.style.marginTop = '1.5rem';
+        header.style.marginTop = '2rem';
         header.innerHTML = `<span class="section-title">Retrieved Papers</span><span class="section-count">${data.papers.length} results</span>`;
         const grid = document.createElement('div');
         grid.className = 'papers-grid';
@@ -1017,13 +1102,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
   }
 
-  // Delegated click handler for paper cards
   document.addEventListener('click', e => {
     const card = e.target.closest('.paper-card');
     if (card && card.dataset.title) openPaper(card.dataset.title);
   });
 
-  // Init
   fetch('/api/papers').then(r => r.json()).then(d => {
     document.getElementById('paperCount').textContent = (d.papers||[]).length + ' papers';
   });
