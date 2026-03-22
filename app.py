@@ -1079,13 +1079,6 @@ def metadata_to_paper(metadata: dict, distance: float = None) -> dict:
 def index():
     return render_template_string(HTML_TEMPLATE)
 
-@app.route("/debug")
-def debug():
-    return jsonify({
-        "chroma_count": collection.count(),
-        "chroma_path": CHROMA_PATH,
-    })
-
 @app.route("/api/paper")
 def api_paper():
     """Return full details for a single paper by title from summaries.json."""
