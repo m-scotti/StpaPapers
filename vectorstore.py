@@ -73,7 +73,7 @@ def _build_metadata(paper: dict) -> dict:
     return {
         "title": paper.get("title", ""),
         "authors": ", ".join(paper.get("authors", [])),
-        "year": int(paper.get("year", 0)),
+        "year": int(paper.get("year") or 0),
         "industry_domain": paper.get("industry_domain", ""),
         "relevance_score": int(sdr.get("relevance_score", 0)),
         "tags": ", ".join(paper.get("tags", [])),
