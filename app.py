@@ -69,23 +69,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --bg: #f7f6f2;
-      --surface: #ffffff;
-      --surface2: #f0efe9;
-      --border: #e2e0d8;
-      --border-strong: #c8c5b8;
-      --accent: #1d3461;
-      --accent-light: #e8edf5;
-      --accent2: #c0392b;
-      --accent2-light: #fdf0ef;
-      --green: #166534;
-      --green-light: #dcfce7;
-      --text: #1a1917;
-      --text-muted: #6b6860;
-      --text-light: #9c9a94;
-      --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-      --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
-      --shadow-lg: 0 20px 50px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.06);
+      --bg: #1c2333;
+      --surface: #232d42;
+      --surface2: #1a2030;
+      --border: #2e3a52;
+      --border-strong: #3d4f6e;
+      --accent: #7eb8f7;
+      --accent-light: rgba(126, 184, 247, 0.1);
+      --accent2: #f4836c;
+      --accent2-light: rgba(244, 131, 108, 0.1);
+      --green: #6ee7b7;
+      --green-light: rgba(110, 231, 183, 0.1);
+      --text: #e8eaf0;
+      --text-muted: #8a97b0;
+      --text-light: #5a6a85;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.2);
+      --shadow-lg: 0 20px 50px rgba(0,0,0,0.5), 0 8px 20px rgba(0,0,0,0.3);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -99,7 +99,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       font-size: 16px;
     }
 
-    /* Header */
     header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -133,7 +132,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
+      color: #1c2333;
       font-size: 0.75rem;
       font-weight: 600;
       font-family: 'IBM Plex Mono', monospace;
@@ -158,7 +157,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     .tabs {
       display: flex;
-      gap: 0;
       border: 1px solid var(--border);
       border-radius: 8px;
       overflow: hidden;
@@ -178,26 +176,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
 
     .tab:last-child { border-right: none; }
+    .tab.active { background: var(--surface); color: var(--accent); font-weight: 600; }
+    .tab:hover:not(.active) { background: var(--border); color: var(--text); }
 
-    .tab.active {
-      background: var(--surface);
-      color: var(--accent);
-      font-weight: 600;
-    }
-
-    .tab:hover:not(.active) {
-      background: var(--border);
-      color: var(--text);
-    }
-
-    /* Main layout */
     main {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 2.5rem 2.5rem;
+      padding: 2.5rem;
     }
 
-    /* Search panel */
     .search-panel {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -225,7 +212,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     .search-input {
       flex: 1;
-      background: var(--bg);
+      background: var(--surface2);
       border: 1.5px solid var(--border);
       border-radius: 8px;
       padding: 0.8rem 1.1rem;
@@ -238,14 +225,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     .search-input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(29, 52, 97, 0.08);
+      box-shadow: 0 0 0 3px rgba(126, 184, 247, 0.1);
     }
 
     .search-input::placeholder { color: var(--text-light); }
 
     .search-btn {
       background: var(--accent);
-      color: white;
+      color: #1c2333;
       border: none;
       border-radius: 8px;
       padding: 0.8rem 1.6rem;
@@ -255,12 +242,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       cursor: pointer;
       transition: all 0.15s;
       white-space: nowrap;
-      letter-spacing: 0.01em;
     }
 
-    .search-btn:hover { background: #152849; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    .search-btn:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: var(--shadow-md); }
     .search-btn:active { transform: translateY(0); }
-    .search-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+    .search-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
 
     .search-hint {
       margin-top: 0.85rem;
@@ -269,7 +255,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       font-style: italic;
     }
 
-    /* Answer panel */
     .answer-panel {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -302,7 +287,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       border-radius: 4px;
       background: var(--accent-light);
       color: var(--accent);
-      border: 1px solid rgba(29, 52, 97, 0.15);
+      border: 1px solid rgba(126, 184, 247, 0.2);
     }
 
     .answer-query {
@@ -318,7 +303,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       color: var(--text);
     }
 
-    /* Markdown rendered styles */
     .answer-content h2 {
       font-family: 'Fraunces', serif;
       font-size: 1rem;
@@ -344,7 +328,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .answer-content hr { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
     .answer-content em { color: var(--text-muted); }
 
-    /* Loading */
     .loading {
       display: none;
       align-items: center;
@@ -366,7 +349,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Section header */
     .section-header {
       display: flex;
       align-items: baseline;
@@ -388,7 +370,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       color: var(--text-muted);
     }
 
-    /* Papers grid */
     .papers-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
@@ -528,7 +509,6 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       border: 1px solid var(--border);
     }
 
-    /* Empty state */
     .empty-state {
       text-align: center;
       padding: 4rem 2rem;
@@ -538,11 +518,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     .empty-state .icon { font-size: 2rem; margin-bottom: 0.75rem; }
     .empty-state p { font-size: 0.9rem; font-style: italic; }
 
-    /* Views */
     .view { display: none; }
     .view.active { display: block; }
 
-    /* Browse controls */
     .browse-controls {
       display: flex;
       gap: 0.75rem;
@@ -561,15 +539,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       font-size: 0.85rem;
       outline: none;
       cursor: pointer;
-      white-space: nowrap;
     }
 
     .browse-sort:focus { border-color: var(--accent); }
 
-    /* Modal */
     .modal-overlay {
       position: fixed; inset: 0;
-      background: rgba(20, 18, 15, 0.55);
+      background: rgba(10, 14, 22, 0.75);
       backdrop-filter: blur(4px);
       z-index: 500;
       display: flex; align-items: center; justify-content: center;
@@ -582,7 +558,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
     .modal {
       background: var(--surface);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-strong);
       border-radius: 14px;
       max-width: 760px; width: 100%;
       max-height: 88vh; overflow-y: auto;
@@ -642,7 +618,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       transition: all 0.15s;
     }
 
-    .modal-close:hover { color: var(--text); border-color: var(--accent); background: var(--accent-light); }
+    .modal-close:hover { color: var(--text); border-color: var(--accent); }
 
     .modal-body {
       padding: 1.75rem 2rem;
@@ -661,18 +637,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       border-bottom: 1px solid var(--border);
     }
 
-    .modal-text {
-      font-size: 0.9rem;
-      line-height: 1.75;
-      color: var(--text);
-    }
+    .modal-text { font-size: 0.9rem; line-height: 1.75; color: var(--text); }
 
-    .modal-list {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
+    .modal-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
 
     .modal-list li {
       font-size: 0.88rem;
@@ -698,39 +665,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       padding: 1.25rem;
     }
 
-    .modal-score-row {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-    }
-
-    .modal-score-label {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.68rem;
-      color: var(--text-muted);
-    }
-
-    .modal-score-bar {
-      flex: 1;
-      height: 5px;
-      background: var(--border);
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .modal-score-fill {
-      height: 100%;
-      background: var(--green);
-      border-radius: 3px;
-    }
-
-    .modal-score-val {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.72rem;
-      font-weight: 500;
-      color: var(--green);
-    }
+    .modal-score-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .modal-score-label { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; color: var(--text-muted); }
+    .modal-score-bar { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .modal-score-fill { height: 100%; background: var(--green); border-radius: 3px; }
+    .modal-score-val { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; font-weight: 500; color: var(--green); }
 
     .modal-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
 
@@ -741,19 +680,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       word-break: break-all;
       text-decoration: none;
     }
-
     .modal-source:hover { text-decoration: underline; }
 
     .modal-loading {
-      text-align: center;
-      padding: 3rem;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      font-style: italic;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
+      text-align: center; padding: 3rem; color: var(--text-muted);
+      font-size: 0.9rem; font-style: italic;
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
     }
 
     blockquote {
@@ -989,22 +921,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           <div class="modal-meta">${authors}${p.year ? ' · ' + p.year : ''}</div>
         </div>
         <div class="modal-body">
-
           ${section('Abstract', `<div class="modal-text">${p.abstract_summary || 'N/A'}</div>`)}
-
           ${findings.length ? section('Key Findings', list(findings)) : ''}
-
           ${p.methodology ? section('Methodology', `<div class="modal-text">${p.methodology}</div>`) : ''}
-
           ${limitations.length ? section('Limitations', list(limitations)) : ''}
-
           ${relatedWork.length ? section('Related Work & Frameworks', list(relatedWork)) : ''}
-
           ${quotes.length ? section('Notable Quotes', `
             <div style="display:flex;flex-direction:column;gap:0.75rem">
               ${quotes.map(q => `<blockquote>${q}</blockquote>`).join('')}
             </div>`) : ''}
-
           <div>
             <div class="modal-section-title">Software Development Relevance</div>
             <div class="modal-sw-box">
@@ -1020,15 +945,12 @@ HTML_TEMPLATE = """<!DOCTYPE html>
               ${antiPatterns.length ? `
                 <div class="modal-section-title" style="margin-top:1rem;color:var(--accent2)">Anti-Patterns to Avoid</div>
                 <ul class="modal-list">
-                  ${antiPatterns.map(a => `<li style="color:var(--text)">${a}</li>`).join('')}
+                  ${antiPatterns.map(a => `<li>${a}</li>`).join('')}
                 </ul>` : ''}
             </div>
           </div>
-
           ${tags.length ? section('Tags', `<div class="modal-tags">${tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>`) : ''}
-
           ${source ? section('Source', `<a class="modal-source" href="${source}" target="_blank" rel="noopener">${source}</a>`) : ''}
-
         </div>`;
     } catch(e) {
       content.innerHTML = `<div class="modal-loading">Failed to load paper details.</div>`;
